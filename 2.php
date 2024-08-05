@@ -57,10 +57,112 @@
     foreach($testMySortForKey as $testVal){
         print "<br>";
         print_r($testVal);
+        print "<br>";
     }
 
     // print "<br> After sort by 'c'<br>";
     // mySortForKey($testMySortForKey, 'c');
+    
+    if (file_exists('testData.xml')) {
+        $xml = simplexml_load_file('testData.xml');
+    
+        print_r($xml);
+    } else {
+        exit('Не удалось открыть файл test.xml.');
+    }
+    print "<br><br>";
+    foreach($xml as $product){
+        print "<br><br>";
+        //print_r($product);
+        //print "<br>";
+        //print_r($product->attributes());
+        //print "<br>";
+        echo "Код ".$product->attributes()["Код"]."<br>";
+        echo "Название ".$product->attributes()["Название"]."<br>";
+        //print_r($product->{'Цена'});
+        print "<br>";
+        foreach($product->{'Цена'} as $price){
+            echo "Цена тип = ".$price->attributes()['Тип']." : ".$price."<br>";
+        }
+        //print_r($product->{'Свойства'});
+        print "<br>";
+        foreach($product->{'Свойства'}[0] as $propKey => $propValue){
+            //print_r($propValue);
+            //print "<br>";
+            echo "Свойство ".$propKey." = ".$propValue." ".$propValue->attributes()."<br>";
+        }
+        
+    }
+    // $productCode = $product->attributes()["Код"];
+    // $productName = $product->attributes()["Название"];
+    // $query = <<<SQL
+    //             INSERT INTO `test_samson`.`a_product`
+    //             (`code`,`name`)
+    //             VALUES
+    //             ($productCode, '$productName');
+    //         SQL;
+
+    // echo "<br><br>". $query;
+    // print "<br><br>";
+    // print_r($xml->{'Товар'}->{'Цена'}[0]->attributes());
+    // print_r($xml->{'Товар'}->{'Цена'}[1]->attributes());
+
+    // try{    
+    //     $pdo = new PDO("mysql:host=localhost;dbname=test_samson","root", "masterkey");
+    // } catch(PDOException $e){
+    //     echo "Невозмодно установить соединение с базой данныйх!";
+    // }
+
+
+    // // $query = "SELECT VERSION() as version";
+    // $ansuer = $pdo->query("SELECT * FROM test_samson.a_product;");
+    // while($elem = $ansuer->fetch()){
+    //     print "<br>";
+    //     print_r($elem);
+    //     print "<br>";
+    // }
+    // echo "<br> version = ". print_r($ansuer) . "<br>" ;
+
+    // Реализовать функцию importXml($filename). $filename – путь к xml файлу (структура
+    // файла приведена ниже). Результат ее выполнения: прочитать файл $filename и
+    // импортировать его в созданную БД.
+    function importXML($filename)
+    {
+        // разбираем XML
+        if (file_exists($filename)) {
+            $xml = simplexml_load_file($filename);  
+            //print_r($xml);
+        } else {
+            throw new Exception("Файл  не найден  '$filename'!");
+        }
+
+        // соединяеся с базой данных
+        try{    
+            $pdo = new PDO("mysql:host=localhost;dbname=test_samson","root", "masterkey");
+        } catch(PDOException $e){
+            echo "Невозмодно установить соединение с базой данныйх!";
+        }
+        // перебираем все товары
+        foreach($xml as $product){
+            // втавляем товар и получаем его id
+            $productCode = $product->attributes()["Код"];
+            $productName = $product->attributes()["Название"];
+            $query = <<<SQL
+                INSERT INTO `test_samson`.`a_product`
+                (`code`,`name`)
+                VALUES
+                ($productCode, '$productName');
+            SQL;
+            $newProductId = $pdo->query($query);
+            // обрабатываем свойства товара
+            $propertyes = $product->{'Свойства'};
+
+        }
+
+    }
+    // importXML("testData.xml");
+    
+
 
     
 
