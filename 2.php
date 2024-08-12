@@ -62,7 +62,7 @@
 
     // print "<br> After sort by 'c'<br>";
     // mySortForKey($testMySortForKey, 'c');
-    
+    /*
     if (file_exists('testData.xml')) {
         $xml = simplexml_load_file('testData.xml');
     
@@ -92,7 +92,7 @@
             echo "Свойство ".$propKey." = ".$propValue." ".$propValue->attributes()."<br>";
         }
         
-    }
+    }*/
     // $productCode = $product->attributes()["Код"];
     // $productName = $product->attributes()["Название"];
     // $query = <<<SQL
@@ -153,14 +153,42 @@
                 VALUES
                 ($productCode, '$productName');
             SQL;
-            $newProductId = $pdo->query($query);
+            $pdo->query($query);
+            $newProductId = $pdo->lastInsertId();
+            print "<br>";
+            print_r($newProductId);
+            print "<br>";
             // обрабатываем свойства товара
-            $propertyes = $product->{'Свойства'};
+            $propertyes = $product->{'Свойства'}[0];
+            print_r($product->{'Свойства'}[0]);
+            $propertyes->rewind();
+            do{
+                //print_r($propValue);
+                //print "<br>";
+                //echo "Свойство ".$propKey." = ".$propValue." ".$propValue->attributes()."<br>";
+
+                $propertyName = $propertyes->key();
+                $proprtyValue = $propertyes->current()." ".$propertyes->current()->attributes(); // через пробел добавляем единицы измерения
+
+                $query = <<<SQL
+                    INSERT INTO `test_samson`.`a_property`
+                    (`product_id`, `property_value`, `name`)
+                    VALUES
+                    (
+                        $newProductId,
+                        '$proprtyValue',
+                        '$propertyName'
+                    );
+                SQL;
+                echo $query;
+                $propertyes->next();
+                $pdo->query($query);
+            } while($propertyes->valid());
 
         }
 
     }
-    // importXML("testData.xml");
+    importXML("testData.xml");
     
 
 
